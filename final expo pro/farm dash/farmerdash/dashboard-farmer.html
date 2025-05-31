@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Farmer Dashboard - FarmFresh</title>
+  <link rel="stylesheet" href="/aside/global/global.css">
+  <link rel="stylesheet" href="/farm dash/farmerdash/dashboard-farmer.css">
+  <!-- Firebase SDKs -->
+<script type="module">
+  // Import the functions you need
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getDatabase, ref, set, push, onValue, get } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+  // Your web app's Firebase config
+  const firebaseConfig = {
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+    databaseURL: "https://YOUR_PROJECT_ID-default-rtdb.firebaseio.com",
+    projectId: "YOUR_PROJECT_ID",
+    storageBucket: "YOUR_PROJECT_ID.appspot.com",
+    messagingSenderId: "XXXX",
+    appId: "XXXX"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+
+  // Make db available globally
+  window.db = db;
+  window.ref = ref;
+  window.set = set;
+  window.push = push;
+  window.onValue = onValue;
+  window.get = get;
+</script>
+
+</head>
+<body>
+  <header class="header">
+    <div class="container">
+       <a href="#" class="logo">🌾 FarmFresh</a>
+      <nav class="nav">
+        <a href="/farm dash/farmerdash/home page/index.html">Home</a>
+        <a href="/farm dash/farmerdash/dashboard-farmer.html" class="active">Dashboard</a>
+        <a href="logout.html">Logout</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="dashboard">
+    <div class="container">
+      <h1>Welcome, Farmer!</h1>
+
+      <section class="dashboard-cards">
+        <a href="/farm dash/farmerdash/add-product/add-product.html" class="card">
+          <h2>Add New Product</h2>
+          <p>Create and list a new product.</p>
+        </a>
+        <a href="/farm dash/farmerdash/my-products/my-products.html" class="card">
+          <h2>Manage Products</h2>
+          <p>Edit or remove existing listings.</p>
+        </a>
+        <a href="/farm dash/farmerdash/dashboard-farmer-orders/dashboard-farmer-orders.html" class="card">
+          <h2>View Orders</h2>
+          <p>See customer orders for your products.</p>
+        </a>
+        <a href="/farm dash/farmerdash/dashboard-farmer-profile/dashboard-farmer-profile.html" class="card">
+          <h2>Profile Settings</h2>
+          <p>Update your personal and farm information.</p>
+        </a>
+      </section>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <p>&copy; 2025 FarmFresh. All rights reserved.</p>
+  </footer>
+
+  <script src="/farm dash/farmerdash.html/dashboard-farmer.js"></script>
+</body>
+</html>
+

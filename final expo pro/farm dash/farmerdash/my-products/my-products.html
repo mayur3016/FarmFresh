@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>My Products - FarmFresh</title>
+  <link rel="stylesheet" href="/aside/global/global.css">
+  <link rel="stylesheet" href="/farm dash/farmerdash/my-products/my-products.css">
+  <!-- Firebase SDKs -->
+<script type="module">
+  // Import the functions you need
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getDatabase, ref, set, push, onValue, get } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+  // Your web app's Firebase config
+  const firebaseConfig = {
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+    databaseURL: "https://YOUR_PROJECT_ID-default-rtdb.firebaseio.com",
+    projectId: "YOUR_PROJECT_ID",
+    storageBucket: "YOUR_PROJECT_ID.appspot.com",
+    messagingSenderId: "XXXX",
+    appId: "XXXX"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+
+  // Make db available globally
+  window.db = db;
+  window.ref = ref;
+  window.set = set;
+  window.push = push;
+  window.onValue = onValue;
+  window.get = get;
+</script>
+
+</head>
+<body>
+    <header class="header">
+    <div class="container">
+       <a href="#" class="logo">🌾 FarmFresh</a>
+      <nav class="nav">
+        <a href="/farm dash/farmerdash/home page/index.html">Home</a>
+        <a href="/farm dash/farmerdash/dashboard-farmer.html" class="active">Dashboard</a>
+        <a href="logout.html">Logout</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="my-products-page">
+    <h1>My Products</h1>
+    <div id="product-list" class="product-list"></div>
+    <div id="myProductsList"></div>
+
+<script type="module">
+  import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+  const db = getDatabase();
+  const productsRef = ref(db, "products/");
+  const myProductsList = document.getElementById("myProductsList");
+
+  // Replace this with real farmer ID (if using login)
+  const farmerId = "FARMER123";
+
+  get(productsRef)
+    .then((snapshot) => {
+      const data = snapshot.val();
+      myProductsList.innerHTML = "";
+
+      if (!data) {
+        myProductsList.innerHTML = "<p>No products found.</p>";
+        return;
+      }
+
+      const myProducts = Object.entries(data).filter(
+        ([id, product]) => product.farmerId === farmerId
+      );
+
+      if (myProducts.length === 0) {
+        myProductsList.innerHTML = "<p>You have not added any products yet.</p>";
+        return;
+      }
+
+      myProducts.forEach(([id, product]) => {
+        const div = document.createElement("div");
+        div.innerHTML = `
+          <img src="${product.image}" alt="${product.name}" width="150" />
+          <h3>${product.name}</h3>
+          <p>₹${product.price}</p>
+          <p>${product.description}</p>
+        `;
+        div.style.border = "1px solid #ccc";
+        div.style.margin = "1rem";
+        div.style.padding = "1rem";
+        div.style.borderRadius = "10px";
+        myProductsList.appendChild(div);
+      });
+    })
+    .catch((error) => {
+      console.error("Error fetching products:", error);
+      myProductsList.innerHTML = "<p>Failed to load products.</p>";
+    });
+</script>
+
+  </main>
+
+ <footer class="footer">
+    <p>&copy; 2025 FarmFresh. All rights reserved.</p>
+  </footer>
+
+  <script src="/farm dash/farmerdash/my-products/my-products.js"></script>
+</body>
+</html>

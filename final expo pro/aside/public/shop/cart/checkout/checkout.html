@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Checkout - FarmFresh</title>
+  <link rel="stylesheet" href="/aside/public/shop/cart/checkout/checkout.css">
+  <link rel="stylesheet" href="/aside/global/global.css">
+  <!-- Firebase SDKs -->
+<script type="module">
+  // Import the functions you need
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getDatabase, ref, set, push, onValue, get } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+  // Your web app's Firebase config
+  const firebaseConfig = {
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+    databaseURL: "https://YOUR_PROJECT_ID-default-rtdb.firebaseio.com",
+    projectId: "YOUR_PROJECT_ID",
+    storageBucket: "YOUR_PROJECT_ID.appspot.com",
+    messagingSenderId: "XXXX",
+    appId: "XXXX"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+
+  // Make db available globally
+  window.db = db;
+  window.ref = ref;
+  window.set = set;
+  window.push = push;
+  window.onValue = onValue;
+  window.get = get;
+</script>
+
+</head>
+<body>
+  <header>
+    <div class="header-container">
+      <div class="logo">FarmFresh</div>
+      <nav>
+        <a href="/aside/public/index.html">Home</a>
+        <a href="/aside/public/shop/shop.html">Shop</a>
+        <a href="/aside/public/shop/cart/cart.html">Cart</a>
+        <a href="/aside/public/shop/order/dashboard-user.html">Orders</a>
+        <a href="account.html">Account</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="checkout-container">
+    <h1>Checkout</h1>
+    <div class="checkout-content">
+     <h1>Checkout</h1>
+<form id="checkoutForm">
+  <input type="text" id="name" placeholder="Your Name" required />
+  <input type="text" id="address" placeholder="Your Address" required />
+  <button type="submit">Place Order</button>
+</form>
+
+<div id="statusMessage"></div>
+
+
+      <div class="order-summary">
+        <h3>Order Summary</h3>
+        <p><strong>Total:</strong> ₹<span id="total-amount">0.00</span></p>
+        <button class="checkout-button">Place Order</button>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    © 2025 FarmFresh. All rights reserved.
+  </footer>
+
+  <!-- Popup Modal -->
+  <div id="order-popup" class="popup-overlay" style="display:none;">
+    <div class="popup-content">
+      <h2>Thank you for your order!</h2>
+      <p>Your order has been placed successfully.</p>
+      <button id="close-popup">Close</button>
+    </div>
+  </div>
+
+  <script src="/aside/public/shop/cart/checkout/checkout.js"></script>
+  <script type="module">
+  import { getDatabase, ref, push } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+  const db = getDatabase();
+
+  const form = document.getElementById("checkoutForm");
+  const statusMessage = document.getElementById("statusMessage");
+
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+
+    const name = document.getElementById("name").value;
+    const address = document.getElementById("address").value;
+
+    const cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+    if (cart.length === 0) {
+      alert("Cart is empty!");
+      return;
+    }
+
+    const order = {
+      name,
+      address,
+      items: cart,
+      total: cart.reduce((sum, item) => sum + item.price, 0),
+      createdAt: Date.now()
+    };
+
+    const orderRef = ref(db, "orders/");
+    push(orderRef, order)
+      .then(() => {
+        localStorage.removeItem("cart");
+        statusMessage.innerHTML = "<p>Order placed successfully!</p>";
+        setTimeout(() => {
+          window.location.href = "/aside/public/shop/order/dashboard-user.html";
+        }, 1500);
+      })
+      .catch((err) => {
+        console.error(err);
+        statusMessage.innerHTML = "<p>Failed to place order.</p>";
+      });
+  });
+</script>
+
+</body>
+</html>

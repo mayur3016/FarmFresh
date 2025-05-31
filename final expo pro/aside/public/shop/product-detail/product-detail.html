@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Product Details | FarmFresh</title>
+  <link rel="stylesheet" href="/aside/global/global.css">
+  <link rel="stylesheet" href="/aside/public/shop/product-detail/product-detail.css">
+  <!-- Firebase SDKs -->
+<script type="module">
+  // Import the functions you need
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getDatabase, ref, set, push, onValue, get } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+  // Your web app's Firebase config
+  const firebaseConfig = {
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+    databaseURL: "https://YOUR_PROJECT_ID-default-rtdb.firebaseio.com",
+    projectId: "YOUR_PROJECT_ID",
+    storageBucket: "YOUR_PROJECT_ID.appspot.com",
+    messagingSenderId: "XXXX",
+    appId: "XXXX"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+
+  // Make db available globally
+  window.db = db;
+  window.ref = ref;
+  window.set = set;
+  window.push = push;
+  window.onValue = onValue;
+  window.get = get;
+</script>
+
+</head>
+<body>
+  <header class="header">
+    <div class="container">
+      <a href="/aside/public/index.html" class="logo">🌾 FarmFresh</a>
+      <nav class="nav">
+        <a href="/aside/public/index.html">Home</a>
+        <a href="/aside/public/shop/shop.html">Shop</a>
+        <a href="/aside/public/shop/cart/cart.html">Cart</a>
+        <a href="/aside/public/shop/order/dashboard-user.html">Orders</a>
+        <a href="/aside/public/shop/account.html">Account</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="product-detail">
+    <div id="productDetail" class="product-detail"></div>
+
+  </main>
+
+  <footer>
+    <p>&copy; 2025 FarmFresh. All rights reserved.</p>
+  </footer>
+
+  <script src="/aside/public/shop/product-detail/product.js"></script>
+  <script type="module">
+  import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+  const db = getDatabase();
+
+  // Get the product ID from URL: ?id=abc123
+  const params = new URLSearchParams(window.location.search);
+  const productId = params.get("id");
+
+  const productDetail = document.getElementById("productDetail");
+
+  if (!productId) {
+    productDetail.innerHTML = "<p>Invalid product ID</p>";
+  } else {
+    const productRef = ref(db, `products/${productId}`);
+    get(productRef)
+      .then((snapshot) => {
+        if (!snapshot.exists()) {
+          productDetail.innerHTML = "<p>Product not found</p>";
+          return;
+        }
+
+        const product = snapshot.val();
+        productDetail.innerHTML = `
+          <img src="${product.image}" alt="${product.name}" width="100%" />
+          <h2>${product.name}</h2>
+          <p>${product.description}</p>
+          <p><strong>₹${product.price}</strong></p>
+          <button id="addToCart">Add to Cart</button>
+        `;
+
+        // Add to Cart
+        document.getElementById("addToCart").addEventListener("click", () => {
+          let cart = JSON.parse(localStorage.getItem("cart")) || [];
+          cart.push({ id: productId, ...product });
+          localStorage.setItem("cart", JSON.stringify(cart));
+          alert("Product added to cart!");
+        });
+      })
+      .catch((error) => {
+        console.error(error);
+        productDetail.innerHTML = "<p>Error loading product</p>";
+      });
+  }
+</script>
+
+</body>
+</html>

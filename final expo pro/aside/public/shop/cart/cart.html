@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Your Cart | FarmFresh</title>
+  <link rel="stylesheet" href="/aside/global/global.css">
+  <link rel="stylesheet" href="/aside/public/shop/cart/cart.css">
+  <!-- Firebase SDKs -->
+<script type="module">
+  // Import the functions you need
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getDatabase, ref, set, push, onValue, get } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+  // Your web app's Firebase config
+  const firebaseConfig = {
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+    databaseURL: "https://YOUR_PROJECT_ID-default-rtdb.firebaseio.com",
+    projectId: "YOUR_PROJECT_ID",
+    storageBucket: "YOUR_PROJECT_ID.appspot.com",
+    messagingSenderId: "XXXX",
+    appId: "XXXX"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+
+  // Make db available globally
+  window.db = db;
+  window.ref = ref;
+  window.set = set;
+  window.push = push;
+  window.onValue = onValue;
+  window.get = get;
+</script>
+
+</head>
+<body>
+  <header class="navbar">
+    <a href="/aside/public/index.html" class="logo">🌾 FarmFresh</a>
+    <nav class="nav">
+      <a href="/aside/public/index.html">Home</a>
+      <a href="/aside/public/shop/shop.html">Shop</a>
+      <a href="#">Cart</a>
+      <a href="/aside/public/shop/order/dashboard-user.html">Orders</a>
+      <a href="/aside/public/shop/account.html">Account</a>
+    </nav>
+  </header>
+
+  <main class="cart-section">
+    <h1>Your Shopping Cart</h1>
+    <h1>Your Cart</h1>
+<div id="cartItems"></div>
+<h3 id="totalPrice">Total: ₹0</h3>
+<button id="checkoutBtn">Proceed to Checkout</button>
+
+  </main>
+
+  <footer>
+    <p>&copy; 2025 FarmFresh. All rights reserved.</p>
+  </footer>
+
+  <script src="/aside/public/shop/cart/cart.js"></script>
+  <script>
+  const cartContainer = document.getElementById("cartItems");
+  const totalDisplay = document.getElementById("totalPrice");
+  const checkoutBtn = document.getElementById("checkoutBtn");
+
+  let cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+  function renderCart() {
+    cartContainer.innerHTML = "";
+    let total = 0;
+
+    if (cart.length === 0) {
+      cartContainer.innerHTML = "<p>Your cart is empty.</p>";
+      totalDisplay.textContent = "Total: ₹0";
+      checkoutBtn.disabled = true;
+      return;
+    }
+
+    checkoutBtn.disabled = false;
+
+    cart.forEach((item, index) => {
+      total += item.price;
+
+      const itemDiv = document.createElement("div");
+      itemDiv.innerHTML = `
+        <img src="${item.image}" alt="${item.name}" width="100" />
+        <h4>${item.name}</h4>
+        <p>₹${item.price}</p>
+        <button onclick="removeItem(${index})">Remove</button>
+      `;
+      cartContainer.appendChild(itemDiv);
+    });
+
+    totalDisplay.textContent = `Total: ₹${total}`;
+  }
+
+  function removeItem(index) {
+    cart.splice(index, 1);
+    localStorage.setItem("cart", JSON.stringify(cart));
+    renderCart();
+  }
+
+  window.removeItem = removeItem;
+
+  checkoutBtn.addEventListener("click", () => {
+    window.location.href = "/aside/public/shop/cart/checkout/checkout.html";
+  });
+
+  renderCart();
+</script>
+
+</body>
+</html>

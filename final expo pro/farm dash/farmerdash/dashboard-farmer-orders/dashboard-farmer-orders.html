@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Farmer Orders - FarmFresh</title>
+  <link rel="stylesheet" href="/aside/global/global.css">
+  <link rel="stylesheet" href="/farm dash/farmerdash/dashboard-farmer-orders/dashboard-farmer-orders.css">
+  <!-- Firebase SDKs -->
+<script type="module">
+  // Import the functions you need
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getDatabase, ref, set, push, onValue, get } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+  // Your web app's Firebase config
+  const firebaseConfig = {
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+    databaseURL: "https://YOUR_PROJECT_ID-default-rtdb.firebaseio.com",
+    projectId: "YOUR_PROJECT_ID",
+    storageBucket: "YOUR_PROJECT_ID.appspot.com",
+    messagingSenderId: "XXXX",
+    appId: "XXXX"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+
+  // Make db available globally
+  window.db = db;
+  window.ref = ref;
+  window.set = set;
+  window.push = push;
+  window.onValue = onValue;
+  window.get = get;
+</script>
+
+</head>
+<body>
+  <header class="header">
+    <div class="container">
+      <a href="#" class="logo">🌾 FarmFresh</a>
+      <nav class="nav">
+        <a href="/farm dash/farmerdash/home page/index.html">Home</a>
+        <a href="/farm dash/farmerdash/dashboard-farmer.html" class="active">Dashboard</a>
+        <a href="logout.html">Logout</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="orders-page">
+    <h1>Orders for Your Products</h1>
+<div id="farmerOrderList"></div>
+
+<script type="module">
+  import { getDatabase, ref, onValue, get } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+  const db = getDatabase();
+  const ordersRef = ref(db, "orders/");
+  const productsRef = ref(db, "products/");
+
+  // Replace this with actual logged-in farmer ID
+  const farmerId = "FARMER123";
+
+  const farmerOrderList = document.getElementById("farmerOrderList");
+
+  // Fetch all products owned by farmer
+  async function getFarmerProductIds() {
+    const snapshot = await get(productsRef);
+    const data = snapshot.val() || {};
+    return Object.entries(data)
+      .filter(([id, product]) => product.farmerId === farmerId)
+      .map(([id]) => id);
+  }
+
+  // Listen for orders
+  onValue(ordersRef, async (snapshot) => {
+    const orders = snapshot.val();
+    farmerOrderList.innerHTML = "";
+
+    if (!orders) {
+      farmerOrderList.innerHTML = "<p>No orders found.</p>";
+      return;
+    }
+
+    const farmerProductIds = await getFarmerProductIds();
+
+    // Filter orders that have items belonging to this farmer
+    const relevantOrders = Object.entries(orders).filter(([orderId, order]) =>
+      order.items.some(item => farmerProductIds.includes(item.id))
+    );
+
+    if (relevantOrders.length === 0) {
+      farmerOrderList.innerHTML = "<p>No orders for your products yet.</p>";
+      return;
+    }
+
+    relevantOrders.forEach(([orderId, order]) => {
+      // Filter only the farmer's products in this order
+      const farmerItems = order.items.filter(item => farmerProductIds.includes(item.id));
+
+      const itemsHTML = farmerItems
+        .map(item => `<li>${item.name} - ₹${item.price}</li>`)
+        .join("");
+
+      const div = document.createElement("div");
+      div.style.border = "1px solid #ccc";
+      div.style.padding = "1rem";
+      div.style.marginBottom = "1rem";
+      div.style.borderRadius = "10px";
+
+      div.innerHTML = `
+        <p><strong>Customer Name:</strong> ${order.name}</p>
+        <p><strong>Address:</strong> ${order.address}</p>
+        <p><strong>Ordered Products:</strong></p>
+        <ul>${itemsHTML}</ul>
+        <p><strong>Order Date:</strong> ${new Date(order.createdAt).toLocaleString()}</p>
+      `;
+
+      farmerOrderList.appendChild(div);
+    });
+  });
+</script>
+
+  </main>
+
+  <footer class="footer">
+    <p>&copy; 2025 FarmFresh. All rights reserved.</p>
+  </footer>
+
+  <script src="/farm dash/farmerdash/dashboard-farmer-orders/dashboard-farmer-orders.js"></script>
+  <script type="module">
+  import { getDatabase, ref, push } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+  const db = getDatabase();
+
+  const form = document.getElementById("addProductForm");
+
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+
+    const name = document.getElementById("name").value;
+    const price = parseFloat(document.getElementById("price").value);
+    const image = document.getElementById("image").value;
+    const description = document.getElementById("description").value;
+
+    // 🔐 Static farmer ID for now; replace with real ID if using Firebase Auth
+    const farmerId = "FARMER123";
+
+    const product = {
+      name,
+      price,
+      image,
+      description,
+      farmerId,
+      createdAt: Date.now()
+    };
+
+    const productsRef = ref(db, "products/");
+    push(productsRef, product)
+      .then(() => {
+        alert("Product added successfully!");
+        form.reset();
+      })
+      .catch((error) => {
+        console.error("Error adding product:", error);
+        alert("Failed to add product.");
+      });
+  });
+</script>
+
+</body>
+</html>
